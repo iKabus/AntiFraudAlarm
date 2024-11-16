@@ -34,37 +34,43 @@ public class Alarm : MonoBehaviour
 
     private IEnumerator PlaingSound()
     {
-        float wait = 1f;
-        float volume = 0;
-        float changeValue = 30f;
+        float waitTime = 1f;
+        float currentVolume = 0;
+        float minVolume = 0;
+        float maxVolume = 1;
+        float changeValue = 40f;
+        
+        var wait = new WaitForSeconds(waitTime);
 
         while (enabled)
         {
             if (_isTriggered == false)
             {
-                volume = Mathf.MoveTowards(volume, 1, changeValue * Time.deltaTime);
-
-                if (!_sound.isPlaying)
+                if (_sound.isPlaying == false)
                 {
+                    currentVolume = minVolume;
+                    
                     _sound.Play();
                 }
-
-                _sound.volume = volume;
+                
+                currentVolume = Mathf.MoveTowards(currentVolume, maxVolume, changeValue * Time.deltaTime);
+                
+                _sound.volume = currentVolume;
             }
             else if (_isTriggered == true)
             {
-                volume = Mathf.MoveTowards(volume, 0, changeValue * Time.deltaTime);
-                _sound.volume = volume;
-                
-                if (volume == 0)
+                if (currentVolume == minVolume)
                 {
                     StopCoroutine(_coroutine);
 
                     _isTriggered = false;
                 }
+                
+                currentVolume = Mathf.MoveTowards(currentVolume, minVolume, changeValue * Time.deltaTime);
+                _sound.volume = currentVolume;
             }
             
-            yield return new WaitForSeconds(wait);
+            yield return wait;
         }
     }
 }
